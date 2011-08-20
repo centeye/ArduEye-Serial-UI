@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ArduEyeCmdListStonyman.txt</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,28 @@
+sensor_name ArduEye
+
+/basic_commands
+writeCmd 32
+display 33
+stop 35
+readCmd 36
+/end_basic_commands
+
+/VC_commands
+calibrate 70  
+resolution 71
+of_resolution 72
+of_Smoothing 73
+/end_VC_commands
+
+/advanced_VC_commands
+drc_on 74
+fpn_on 75
+vref 81
+/end_advanced_VC_commands
+
+/display
+rawImage 48 32768 char
+OpticFlowX 49 256 char
+OpticFlowY 50 256 char
+fps 51 1 short
+/end_display
