@@ -6,6 +6,11 @@
 #define MAX_PACKET_SIZE 1010
 
 #define ESC_CHAR    38 //0xFF
+#define START_PCKT  90
+#define END_PCKT    91
+
+#define GO_CHAR 36
+#define ACK_CMD 34
 
 #define NULL_PROCESS -1
 #define RECEIVE_PROCESS 1
@@ -15,6 +20,12 @@
 #define DATA_ID_OFX   49
 #define DATA_ID_OFY   50
 #define DATA_ID_FPS   51
+
+#define DISPLAY_NONE  0
+#define DISPLAY_GRAYSCALE_IMAGE 1
+#define DISPLAY_CHARTX 2
+#define DISPLAY_CHARTY 3
+#define DISPLAY_TEXT 4
 
 struct DataSets{
 
@@ -26,6 +37,8 @@ public:
     int SizeFactor;
     char * DataArray;
     int MaxSize;
+    int DisplayType;
+    bool DataReceived;
 
     DataSets()
     {
@@ -39,6 +52,9 @@ public:
             DataArray[i] = 0;
         MaxSize = MaxLength*SizeFactor;
         length = MaxLength;
+        DisplayType = DISPLAY_NONE;
+        DataReceived = false;
+        width = height  = 0;
     }
     void Clear()
     {
@@ -59,6 +75,7 @@ public:
     int DSID, Process;
     int PacketSize, DataSize;
     unsigned int DSIdx, DSRows, DSCols;
+    unsigned int DisplayType;
     bool EODS;
 
     Header(int Size)
@@ -68,6 +85,7 @@ public:
         DSIdx = 0;
         PacketSize = DEFAULT_PACKET_SIZE;
         Process = NULL_PROCESS;
+        DisplayType = DISPLAY_NONE;
     }
     void Parse(char * InDat)
     {
@@ -76,6 +94,7 @@ public:
         DSCols = ((unsigned char)InDat[3] << 8) + (unsigned char)InDat[4];
         DSIdx = ((unsigned char)InDat[5] << 8) + (unsigned char)InDat[6];
         EODS = (InDat[7] > 0) ? true : false;
+        DisplayType = InDat[7];
 
     }
     void SetPacketSize(int Size)

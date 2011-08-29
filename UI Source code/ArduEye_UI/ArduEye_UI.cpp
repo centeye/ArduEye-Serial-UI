@@ -20,10 +20,12 @@ ArduEyeUI::ArduEyeUI(QWidget *parent) :
                this, SLOT(onDeviceDiscovered(const QextPortInfo &)));
     connect(comm->enumerator, SIGNAL(deviceRemoved(const QextPortInfo &)),
                this, SLOT(onDeviceRemoved(const QextPortInfo &)));
+   // connect(this, SIGNAL(paintReady(void)), this, SLOT(PaintManager()), Qt::QueuedConnection);
 
     ui->textEdit->setReadOnly(true);
     ui->CmdListEdit->setReadOnly(true);
 
+    DataBufferSize = StartIdx = BufEndIdx = DataIdx = 0;
     NumDataSets = 0;
     LoadTextFile();
     InitDataSets();
@@ -38,13 +40,13 @@ ArduEyeUI::ArduEyeUI(QWidget *parent) :
     QPixmap PMBlack(ui->imagelabel->width(), ui->imagelabel->height());
     PMBlack.fill(Qt::black);
     ImagePixMap = PMBlack;
-
 }
 
 ArduEyeUI::~ArduEyeUI()
 {
     for(int i = 0; i < NumDataSets; i++)
         DS[i].Delete();
+    delete DataBuffer;
     delete ui;
 }
 
@@ -73,6 +75,7 @@ void ArduEyeUI::on_ConnectButton_clicked()
     else
         ui->textEdit->append("Device Connect Failed");
 }
+
 void ArduEyeUI::onDataAvailable()
 {
     int numbytes, SkippedCount;
@@ -80,134 +83,137 @@ void ArduEyeUI::onDataAvailable()
     char Header[10];//HeadDat->HeaderSize];
     char Poll[1];
     numbytes= comm->port->bytesAvailable();
-    ui->textEdit->append("recieved bytes:" + num.setNum(numbytes));
+    ui->textEdit->append("recieved bytes:" + num.setNum(numbytes) + "    " + num1.setNum(DataIdx));
 
     if(numbytes >= MAX_PACKET_SIZE)
     {
        QByteArray temp =  comm->port->readAll();
+       qDebug() << "BufferOverflow!";
        //ui->textEdit->append(temp);
         return;
     }
 
-   if(HeadDat->Process == NULL_PROCESS)
+    if(numbytes > DataBufferSize - DataIdx)
     {
-        SkippedCount = 0;
-        while((Poll[0] != ESC_CHAR) && (SkippedCount < numbytes))
-        {
-            SkippedCount++;
-            comm->port->read(Poll, 1);
-        }
-
-        if(SkippedCount > numbytes-2)
-        {
-            qDebug() << "trash bytes " << SkippedCount << "numbytes" << numbytes;
-            comm->port->readAll();
-            return;
-        }
-
-        comm->port->read(Poll, 2);
-        HeadDat->SetPacketSize(((unsigned char)Poll[0] << 8) + (unsigned char)Poll[1]);
-
-        if(HeadDat->PacketSize > MAX_PACKET_SIZE)
-            return;
-
-        HeadDat->Process = RECEIVE_PROCESS;
-        if(numbytes < HeadDat->PacketSize)
-            return;
-    }
-    if(numbytes < HeadDat->PacketSize)
-    {
-    //    qDebug() << "wait for " << HeadDat->PacketSize << "  numbytes: " << numbytes;
-        return;
-    }
-    else
-    {
-        comm->port->read(Header, HeadDat->HeaderSize);
-        HeadDat->Parse(Header);
-        int AD = GetActiveDataSet(HeadDat->DSID);
-
-        if((HeadDat->DataSize > 0) && (HeadDat->DSIdx + HeadDat->DataSize <= DS[AD].MaxSize))
-            comm->port->read(DS[AD].DataArray + HeadDat->DSIdx, HeadDat->DataSize);
-        else
-        {
-            qDebug() << "Size" << HeadDat->DataSize << "DSIDX" << HeadDat->DSIdx << "MaxSize" << DS[AD].MaxSize;
-            QByteArray Temp = comm->port->readAll();
-        }
-
-        if(HeadDat->EODS)
-            PaintManager(AD);
-        HeadDat->Process = NULL_PROCESS;
+        BufEndIdx = DataIdx;
+        qDebug() << numbytes << DataIdx;
+        DataIdx = 0;
 
     }
+    comm->port->read(DataBuffer + DataIdx, numbytes);
+
+
+    for (int i = 0; i < numbytes; i++)
+    {
+        if(DataBuffer[DataIdx + i] == START_PCKT)
+        {
+            if(DataBuffer[DataIdx + i + 1] != START_PCKT)
+            {
+                qDebug() << "LostBytes" << START_PCKT - END_PCKT;
+                StartIdx = DataIdx + i;
+            }
+            else
+                i++;
+        }
+        if(DataBuffer[DataIdx + i] == END_PCKT)
+        {
+            if(DataBuffer[DataIdx + i + 1] != END_PCKT)
+                 ParsePacket(StartIdx, BufEndIdx, DataIdx + i);
+            else
+                i++;
+        }
+        if(DataBuffer[DataIdx + i] == GO_CHAR)
+        {
+            if(DataBuffer[DataIdx + i + 1] != GO_CHAR)
+                 comm->SendAck();
+            else
+                i++;
+        }
+        qDebug() << DataBuffer[DataIdx +i];
+    }
+    DataIdx += numbytes;
+
 }
 
-void ArduEyeUI::PaintManager(int ActiveDataSet)
+void ArduEyeUI::ParsePacket(int Start, int BufEnd, int End)
+{
+    qDebug() << "start" << Start <<  "End" << End << "Size" << End-Start;
+    if(BufEnd > End)
+        qDebug() << "BufEnd" << BufEnd;
+}
+
+void ArduEyeUI::paintManager()
 {
     int xID, yID;
+    bool ImageProcessed = false;
+    int yloc = TEXT_YLOC;
 
-    int DSSize = HeadDat->DSRows * HeadDat->DSCols;
-    if((DSSize <= DS[ActiveDataSet].MaxSize) && (DSSize > 0))
+    // Fill Base Image
+    for (int n = 0; n < NumDataSets; n++)
     {
-
-        switch(HeadDat->DSID)
+        if((DS[n].DisplayType == DISPLAY_GRAYSCALE_IMAGE) && (DS[n].DataReceived))
         {
-        case DATA_ID_RAW:
-           PrintImage((uchar *)(DS[ActiveDataSet].DataArray), HeadDat->DSRows, HeadDat->DSCols);
-           break;
-        case DATA_ID_OFX:
-          //  ui->OpticX_Label->update();
-            PrintOFXBoxes(DS[ActiveDataSet].DataArray, HeadDat->DSRows, HeadDat->DSCols);
+            PrintImage((uchar *)(DS[n].DataArray), DS[n].height, DS[n].width);
+            ImageProcessed = true;
+            DS[n].DataReceived = false;
+        }
+    }
+    if(!ImageProcessed)
+    {
+        QPixmap PM = ImagePixMap; //(QPixmap *)(ui->imagelabel->pixmap());
+        if(PixRefresh == false)
+        {
+            QPixmap PMBlack(ui->imagelabel->width(), ui->imagelabel->height());
+            PMBlack.fill(Qt::black);
+            //ui->imagelabel->setPixmap(PMBlack);
+            PM = PMBlack;//(QPixmap *)(ui->imagelabel->pixmap());
+        }
+    }
+
+    // fill chart images
+    for (int n = 0; n < NumDataSets; n++)
+    {
+        if((DS[n].DisplayType == DISPLAY_CHARTX) && (DS[n].DataReceived))
+        {
+            PrintOFXBoxes(DS[n].DataArray, DS[n].height, DS[n].width);
             if(!OFYRec)
             {
                 yID = GetActiveDataSet(DATA_ID_OFY);
                 DS[yID].Clear();
-                PrintVectors(DS[yID].DataArray, DS[ActiveDataSet].DataArray, HeadDat->DSRows, HeadDat->DSCols);
+                PrintVectors(DS[yID].DataArray, DS[n].DataArray, DS[n].height, DS[n].width);
             }
             OFYRec = false;
             OFXRec = true;
-            break;
-        case DATA_ID_OFY:
-            PrintOFYBoxes(DS[ActiveDataSet].DataArray, HeadDat->DSRows, HeadDat->DSCols);
+            DS[n].DataReceived = false;
+        }
+        if((DS[n].DisplayType == DISPLAY_CHARTY) && (DS[n].DataReceived))
+        {
+            PrintOFYBoxes(DS[n].DataArray, DS[n].height, DS[n].width);
             xID = GetActiveDataSet(DATA_ID_OFX);
             if(!OFXRec)
                 DS[xID].Clear();
-            PrintVectors(DS[ActiveDataSet].DataArray, DS[xID].DataArray, HeadDat->DSRows, HeadDat->DSCols);
+            PrintVectors(DS[n].DataArray, DS[xID].DataArray, DS[n].height, DS[n].width);
             OFYRec = true;
             OFXRec = false;
-            break;
-        case DATA_ID_FPS:
-            PrintFPS(DS[ActiveDataSet].DataArray);
-            break;
+            DS[n].DataReceived = false;
+        }
+    }
+    for (int n = 0; n < NumDataSets; n++)
+    {
+        if((DS[n].DisplayType == DISPLAY_TEXT) && (DS[n].DataReceived))
+        {
+            PrintFPS(DS[n].DataArray, TEXT_XLOC, yloc);
+            yloc += 20;
         }
     }
 }
 
-void ArduEyeUI::PrintFPS(char * data)
+void ArduEyeUI::PrintFPS(char * data, int xloc, int yloc)
 {
     int fps = (data[0] << 8) + data[1];
     QString fpsString, num;
     fpsString = "FPS Sensor: " + num.setNum(fps);
-    QPoint TopLeft(10,20);
-
-    QPixmap * PM = (QPixmap *)(ui->imagelabel->pixmap());
-    if(PM == NULL)
-    {
-        QPixmap PMBlack(ui->imagelabel->width(), ui->imagelabel->height());
-        PMBlack.fill(Qt::black);
-        ui->imagelabel->setPixmap(PMBlack);
-        PM = (QPixmap *)(ui->imagelabel->pixmap());
-    }
-    QPainter painter(PM);
-    QPen pen(Qt::red, 2);
-    painter.setPen(pen);
-    painter.drawText(TopLeft, fpsString);
-}
-
-void ArduEyeUI::PrintFPSUI(int data)
-{
-    QString fpsString, num;
-    fpsString = "FPS UI: " + num.setNum(data);
-    QPoint TopLeft(10,20);
+    QPoint TopLeft(xloc, yloc);
 
     QPixmap * PM = (QPixmap *)(ui->imagelabel->pixmap());
     if(PM == NULL)
@@ -393,8 +399,7 @@ void ArduEyeUI::Parse(QString inText)
     char dat;
     int Idx;
 
-    Dat.append(ESC_CHAR);
-    Dat.append((char)(inList.count()));
+    Dat.append(START_PCKT);
 
     // set write/display/stop prefix
     Idx = CmdList.indexOf(inList.at(0));
@@ -422,6 +427,7 @@ void ArduEyeUI::Parse(QString inText)
         dat = static_cast<char>(inList.at(i+2).toShort() & 0xFF);
         Dat.append(dat);
     }
+    Dat.append(END_PCKT);
 
     for(int i = 0; i < Dat.size(); i++)
         qDebug() << static_cast<int>(Dat[i]);
@@ -498,7 +504,7 @@ void ArduEyeUI::InitDataSets()
     inputFile.open(QIODevice::ReadOnly);
     QTextStream in (&inputFile);
     QString line, DatType;
-    int DSIdx = 0;
+    int DSIdx = 0, MaxDataSize = 0;
 
     DS = new DataSets[NumDataSets];
     while((line=in.readLine())!= "/display"){};
@@ -514,6 +520,11 @@ void ArduEyeUI::InitDataSets()
         else if(DatType == "int" )
             DS[DSIdx].SizeFactor = 4;
         DS[DSIdx].InitDataArray(line.section(" ", 2, 2).toInt());
+        if(DS[DSIdx].MaxSize > MaxDataSize)
+            MaxDataSize = DS[DSIdx].MaxSize;
         DSIdx++;
     }
+
+    DataBuffer = new char[MaxDataSize*2];
+    DataBufferSize = MaxDataSize * 2;
 }

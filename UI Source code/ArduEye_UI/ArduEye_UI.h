@@ -6,6 +6,9 @@
 #include "Datasets.h"
 #include <QElapsedTimer>
 
+#define TEXT_XLOC 10
+#define TEXT_YLOC 20
+
 template <class T> const T& max ( const T& a, const T& b ) {
   return (b<a)?a:b;
 }
@@ -32,6 +35,10 @@ private slots:
     void on_ConnectButton_clicked();
     void onDataAvailable();
     void on_CmdEdit_returnPressed();
+    void paintManager();
+
+signals:
+    void paintReady();
 
 private:
     Ui::ArduEyeUI *ui;
@@ -48,14 +55,17 @@ private:
     Header *HeadDat;
     bool OFYRec, OFXRec, PixRefresh;
 
+    char * DataBuffer;
+    int DataBufferSize, StartIdx, BufEndIdx, DataIdx;
+
+    void ParsePacket(int Start, int BufEnd, int End);
     void LoadTextFile();
     void Parse(QString inText);
-    void PaintManager(int ActiveDataSet);
     void PrintImage(uchar * data, int rows, int cols);
     void PrintVectors(char *dataR, char * dataC, int rows, int cols);
     void PrintOFYBoxes(char *data, int rows, int cols);
     void PrintOFXBoxes(char *data, int rows, int cols);
-    void PrintFPS(char * data);
+    void PrintFPS(char * data, int xloc, int yloc);
     void PrintFPSUI(int data);
     void InitDataSets();
     int GetActiveDataSet(int inDSID);

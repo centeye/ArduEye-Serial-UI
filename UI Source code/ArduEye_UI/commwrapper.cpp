@@ -1,10 +1,12 @@
 #include "commwrapper.h"
+#include "Datasets.h"
 
 CommWrapper::CommWrapper():
     port(new QextSerialPort),
     enumerator(new QextSerialEnumerator)
 {
     enumerator->setUpNotifications();
+    ACKCmd.append(ACK_CMD);
 }
 CommWrapper::~CommWrapper()
 {
@@ -36,5 +38,9 @@ bool CommWrapper::Open(const QString & name)
     }
     else
         return true;
+}
+void CommWrapper::SendAck()
+{
+    port->write(ACKCmd);
 }
 

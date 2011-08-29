@@ -16,6 +16,9 @@ public:
 
     void Enumerate(QComboBox * list);
     bool Open(const QString & name);
+    void SendAck();
+
+    QByteArray ACKCmd;
 
 };
 
