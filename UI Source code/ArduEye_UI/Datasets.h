@@ -1,13 +1,17 @@
 #ifndef DATASETS_H
 #define DATASETS_H
 
-#define HEADER_SIZE 8
+#define HEADER_SIZE 6
 #define DEFAULT_PACKET_SIZE 512
 #define MAX_PACKET_SIZE 1010
 
 #define ESC_CHAR    38 //0xFF
 #define START_PCKT  90
 #define END_PCKT    91
+#define END_FRAME 92
+
+#define PCKT_HEADER 2
+#define PCKT_DATA 1
 
 #define GO_CHAR 36
 #define ACK_CMD 34
@@ -17,9 +21,9 @@
 
 // data set ids
 #define DATA_ID_RAW   48
-#define DATA_ID_OFX   49
-#define DATA_ID_OFY   50
-#define DATA_ID_FPS   51
+#define DATA_ID_OFX   50
+#define DATA_ID_OFY   52
+#define DATA_ID_FPS   54
 
 #define DISPLAY_NONE  0
 #define DISPLAY_GRAYSCALE_IMAGE 1
@@ -67,42 +71,6 @@ public:
     }
 };
 
-//Header: 2bytes pckt size, 1 byte DataId, 1 byte row, 1 byte cols,  2Bytes dataIndex, 1 Byte EODS
-struct Header {
 
-public:
-    int HeaderSize;
-    int DSID, Process;
-    int PacketSize, DataSize;
-    unsigned int DSIdx, DSRows, DSCols;
-    unsigned int DisplayType;
-    bool EODS;
-
-    Header(int Size)
-    {
-        HeaderSize = Size;
-        EODS = false;
-        DSIdx = 0;
-        PacketSize = DEFAULT_PACKET_SIZE;
-        Process = NULL_PROCESS;
-        DisplayType = DISPLAY_NONE;
-    }
-    void Parse(char * InDat)
-    {
-        DSID = (int)InDat[0];
-        DSRows = ((unsigned char)InDat[1] << 8) + (unsigned char)InDat[2];
-        DSCols = ((unsigned char)InDat[3] << 8) + (unsigned char)InDat[4];
-        DSIdx = ((unsigned char)InDat[5] << 8) + (unsigned char)InDat[6];
-        EODS = (InDat[7] > 0) ? true : false;
-        DisplayType = InDat[7];
-
-    }
-    void SetPacketSize(int Size)
-    {
-        PacketSize = Size;
-        DataSize = PacketSize - HeaderSize;
-    }
-
-};
 
 #endif // DATASETS_H

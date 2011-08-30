@@ -29,7 +29,7 @@ aobias 87
 
 /display
 rawImage 48 32768 char
-OpticFlowX 49 256 char
-OpticFlowY 50 256 char
-fps 51 1 short
+OpticFlowX 50 256 char
+OpticFlowY 52 256 char
+fps 54 1 short
 /end_display

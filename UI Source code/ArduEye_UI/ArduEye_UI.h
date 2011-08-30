@@ -43,7 +43,6 @@ signals:
 private:
     Ui::ArduEyeUI *ui;
     CommWrapper *comm;
-
     QElapsedTimer Timer;
     QStringList CmdList;
     QByteArray CmdIndex;
@@ -52,13 +51,11 @@ private:
     char AckCmd[3];
     DataSets *DS;
     int NumDataSets;
-    Header *HeadDat;
-    bool OFYRec, OFXRec, PixRefresh;
-
+    bool PixRefresh;
     char * DataBuffer;
     int DataBufferSize, StartIdx, BufEndIdx, DataIdx;
 
-    void ParsePacket(int Start, int BufEnd, int End);
+    void ParsePacket(int Start, int End);
     void LoadTextFile();
     void Parse(QString inText);
     void PrintImage(uchar * data, int rows, int cols);
