@@ -5,6 +5,7 @@
 #include <QtDebug>
 #include <QPainter>
 #include <QColor>
+#include <QFileDialog>
 
 QVector<QRgb> ColorMap(256);
 
@@ -38,6 +39,8 @@ ArduEyeUI::ArduEyeUI(QWidget *parent) :
     QPixmap PMBlack(ui->imagelabel->width(), ui->imagelabel->height());
     PMBlack.fill(Qt::black);
     ImagePixMap = PMBlack;
+
+    FileRecordOn = false;
 }
 
 ArduEyeUI::~ArduEyeUI()
@@ -104,10 +107,7 @@ void ArduEyeUI::onDataAvailable()
         if(DataBuffer[DataIdx + i] == START_PCKT)
         {
             if(DataBuffer[DataIdx + i + 1] != START_PCKT)
-            {
-                qDebug() << "LostBytes" << START_PCKT - END_PCKT;
                 StartIdx = DataIdx + i;
-            }
             else
                 i++;
         }
@@ -145,6 +145,7 @@ void ArduEyeUI::ParsePacket(int Start, int End)
 
     if(DataID == END_FRAME)
     {
+        RecordtoFile();
         paintManager();
         return;
     }
@@ -216,12 +217,31 @@ void ArduEyeUI::ParsePacket(int Start, int End)
         DS[DIdx].height = (Header[0] << 8) + Header[1];
         DS[DIdx].width = (Header[2] << 8) + Header[3];
         DS[DIdx].DisplayType = Header[4];
+        DS[DIdx].length = DS[DIdx].height * DS[DIdx].width;
     }
     else
         DS[DIdx].DataReceived = true;
 
     if(Start > End)
         BufEndIdx = 0;
+}
+
+void ArduEyeUI::RecordtoFile()
+{
+    if(FileRecordOn)
+    {
+        for(int n = 0; n < NumDataSets; n++)
+        {
+            if(DS[n].DataReceived)
+            {
+                char DataInfo[] = {DS[n].DSID, DS[n].width, DS[n].height};
+                FileSave.write(DataInfo, 3);
+
+                FileSave.write(DS[n].DataArray, DS[n].length);
+                qDebug() << FileSave.pos() << DS[n].length;
+            }
+        }
+    }
 }
 
 void ArduEyeUI::paintManager()
@@ -607,4 +627,22 @@ void ArduEyeUI::InitDataSets()
 
     DataBuffer = new char[MaxDataSize*2];
     DataBufferSize = MaxDataSize * 2;
+}
+
+void ArduEyeUI::on_FileRecordButton_clicked()
+{
+    if(!FileRecordOn)
+    {
+        QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", "");
+
+        FileSave.setFileName(filename);
+        FileSave.open(QIODevice::WriteOnly);
+        FileRecordOn = true;
+    }
+    else
+    {
+        FileSave.close();
+        FileRecordOn = false;
+    }
+
 }

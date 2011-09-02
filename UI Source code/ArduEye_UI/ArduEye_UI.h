@@ -5,6 +5,7 @@
 #include "commwrapper.h"
 #include "Datasets.h"
 #include <QElapsedTimer>
+#include <QFile>
 
 #define TEXT_XLOC 10
 #define TEXT_YLOC 20
@@ -36,6 +37,7 @@ private slots:
     void onDataAvailable();
     void on_CmdEdit_returnPressed();
     void paintManager();
+    void on_FileRecordButton_clicked();
 
 signals:
     void paintReady();
@@ -54,6 +56,8 @@ private:
     bool PixRefresh;
     char * DataBuffer;
     int DataBufferSize, StartIdx, BufEndIdx, DataIdx;
+    bool FileRecordOn;
+    QFile FileSave;
 
     void ParsePacket(int Start, int End);
     void LoadTextFile();
@@ -66,6 +70,7 @@ private:
     void PrintFPSUI(int data);
     void InitDataSets();
     int GetActiveDataSet(int inDSID);
+    void RecordtoFile();
 
 };
 

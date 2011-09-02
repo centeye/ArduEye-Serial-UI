@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ArduEye_UI.h'
 **
-** Created: Tue Aug 30 00:59:18 2011
+** Created: Fri Sep 2 17:43:52 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_ArduEyeUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-       8,   14, // methods
+       9,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -41,6 +41,7 @@ static const uint qt_meta_data_ArduEyeUI[] = {
      146,   10,   10,   10, 0x08,
      164,   10,   10,   10, 0x08,
      191,   10,   10,   10, 0x08,
+     206,   10,   10,   10, 0x08,
 
        0        // eod
 };
@@ -51,6 +52,7 @@ static const char qt_meta_stringdata_ArduEyeUI[] = {
     "onDeviceRemoved(QextPortInfo)\0"
     "on_ConnectButton_clicked()\0onDataAvailable()\0"
     "on_CmdEdit_returnPressed()\0paintManager()\0"
+    "on_FileRecordButton_clicked()\0"
 };
 
 const QMetaObject ArduEyeUI::staticMetaObject = {
@@ -90,9 +92,10 @@ int ArduEyeUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 5: onDataAvailable(); break;
         case 6: on_CmdEdit_returnPressed(); break;
         case 7: paintManager(); break;
+        case 8: on_FileRecordButton_clicked(); break;
         default: ;
         }
-        _id -= 8;
+        _id -= 9;
     }
     return _id;
 }

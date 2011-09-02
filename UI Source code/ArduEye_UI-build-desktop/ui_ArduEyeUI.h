@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ArduEyeUI.ui'
 **
-** Created: Sat Aug 20 15:59:35 2011
+** Created: Fri Sep 2 17:43:37 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
