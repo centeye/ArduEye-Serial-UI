@@ -14,22 +14,22 @@
 #define PCKT_DATA 1
 
 #define GO_CHAR 36
+#define CMD_ACK 37
 #define ACK_CMD 34
 
 #define NULL_PROCESS -1
 #define RECEIVE_PROCESS 1
 
-// data set ids
-#define DATA_ID_RAW   48
-#define DATA_ID_OFX   50
-#define DATA_ID_OFY   52
-#define DATA_ID_FPS   54
+#define DATA_ID_OFY 52
+#define DATA_ID_OFX 50
 
 #define DISPLAY_NONE  0
 #define DISPLAY_GRAYSCALE_IMAGE 1
 #define DISPLAY_CHARTX 2
 #define DISPLAY_CHARTY 3
 #define DISPLAY_TEXT 4
+#define DISPLAY_DUMP 5
+#define DISPLAY_POINTS 6
 
 struct DataSets{
 

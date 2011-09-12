@@ -38,6 +38,7 @@ private slots:
     void on_CmdEdit_returnPressed();
     void paintManager();
     void on_FileRecordButton_clicked();
+    void CheckCmdReceived();
 
 signals:
     void paintReady();
@@ -57,20 +58,23 @@ private:
     char * DataBuffer;
     int DataBufferSize, StartIdx, BufEndIdx, DataIdx;
     bool FileRecordOn;
+    bool ESCReceived;
     QFile FileSave;
+    bool CmdReceived;
 
     void ParsePacket(int Start, int End);
     void LoadTextFile();
     void Parse(QString inText);
     void PrintImage(uchar * data, int rows, int cols);
-    void PrintVectors(char *dataR, char * dataC, int rows, int cols);
+    void PrintVectors(char *dataR, char * dataC, int rows, int cols, QPixmap * PM);
     void PrintOFYBoxes(char *data, int rows, int cols);
     void PrintOFXBoxes(char *data, int rows, int cols);
-    void PrintFPS(char * data, int xloc, int yloc);
-    void PrintFPSUI(int data);
+    void PrintText(char * data, int xloc, int yloc, QPixmap * PM);
+    void PrintPoints(char *data, int NumPoints, QPixmap * PM);
     void InitDataSets();
     int GetActiveDataSet(int inDSID);
     void RecordtoFile();
+
 
 };
 

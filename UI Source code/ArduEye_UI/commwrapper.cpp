@@ -6,6 +6,7 @@ CommWrapper::CommWrapper():
     enumerator(new QextSerialEnumerator)
 {
     enumerator->setUpNotifications();
+    ACKCmd.append(ESC_CHAR);
     ACKCmd.append(ACK_CMD);
 }
 CommWrapper::~CommWrapper()
