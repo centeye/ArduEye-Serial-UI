@@ -1,3 +1,8 @@
+/* Main.cpp - main event loop.
+  This function is a generic Qt UI event loop
+  */
+
+
 #include <QtGui/QApplication>
 #include "ArduEye_UI.h"
 #include <QtDebug>

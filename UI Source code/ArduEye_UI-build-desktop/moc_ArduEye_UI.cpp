@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ArduEye_UI.h'
 **
-** Created: Sat Sep 10 20:18:28 2011
+** Created: Thu Sep 15 07:08:19 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,38 +23,33 @@ static const uint qt_meta_data_ArduEyeUI[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       1,       // signalCount
-
- // signals: signature, parameters, type, tag, flags
-      11,   10,   10,   10, 0x05,
+       0,       // signalCount
 
  // slots: signature, parameters, type, tag, flags
-      24,   10,   10,   10, 0x08,
-      56,   48,   10,   10, 0x08,
-      89,   48,   10,   10, 0x08,
-     119,   10,   10,   10, 0x08,
-     146,   10,   10,   10, 0x08,
-     164,   10,   10,   10, 0x08,
-     191,   10,   10,   10, 0x08,
-     206,   10,   10,   10, 0x08,
-     236,   10,   10,   10, 0x08,
+      19,   11,   10,   10, 0x08,
+      52,   11,   10,   10, 0x08,
+      82,   10,   10,   10, 0x08,
+     109,   10,   10,   10, 0x08,
+     127,   10,   10,   10, 0x08,
+     154,   10,   10,   10, 0x08,
+     184,   10,   10,   10, 0x08,
+     203,   10,   10,   10, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ArduEyeUI[] = {
-    "ArduEyeUI\0\0paintReady()\0on_findButton_clicked()\0"
-    "newport\0onDeviceDiscovered(QextPortInfo)\0"
+    "ArduEyeUI\0\0newport\0onDeviceDiscovered(QextPortInfo)\0"
     "onDeviceRemoved(QextPortInfo)\0"
     "on_ConnectButton_clicked()\0onDataAvailable()\0"
-    "on_CmdEdit_returnPressed()\0paintManager()\0"
+    "on_CmdEdit_returnPressed()\0"
     "on_FileRecordButton_clicked()\0"
-    "CheckCmdReceived()\0"
+    "CheckCmdReceived()\0on_enterButton_clicked()\0"
 };
 
 const QMetaObject ArduEyeUI::staticMetaObject = {
@@ -86,26 +81,18 @@ int ArduEyeUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: paintReady(); break;
-        case 1: on_findButton_clicked(); break;
-        case 2: onDeviceDiscovered((*reinterpret_cast< const QextPortInfo(*)>(_a[1]))); break;
-        case 3: onDeviceRemoved((*reinterpret_cast< const QextPortInfo(*)>(_a[1]))); break;
-        case 4: on_ConnectButton_clicked(); break;
-        case 5: onDataAvailable(); break;
-        case 6: on_CmdEdit_returnPressed(); break;
-        case 7: paintManager(); break;
-        case 8: on_FileRecordButton_clicked(); break;
-        case 9: CheckCmdReceived(); break;
+        case 0: onDeviceDiscovered((*reinterpret_cast< const QextPortInfo(*)>(_a[1]))); break;
+        case 1: onDeviceRemoved((*reinterpret_cast< const QextPortInfo(*)>(_a[1]))); break;
+        case 2: on_ConnectButton_clicked(); break;
+        case 3: onDataAvailable(); break;
+        case 4: on_CmdEdit_returnPressed(); break;
+        case 5: on_FileRecordButton_clicked(); break;
+        case 6: CheckCmdReceived(); break;
+        case 7: on_enterButton_clicked(); break;
         default: ;
         }
-        _id -= 10;
+        _id -= 8;
     }
     return _id;
-}
-
-// SIGNAL 0
-void ArduEyeUI::paintReady()
-{
-    QMetaObject::activate(this, &staticMetaObject, 0, 0);
 }
 QT_END_MOC_NAMESPACE

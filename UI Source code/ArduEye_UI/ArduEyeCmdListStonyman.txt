@@ -4,7 +4,7 @@ sensor_name ArduEye
 writeCmd 32
 display 33
 stop 35
-readCmd 36
+serialStart 39
 /end_basic_commands
 
 /VC_commands
@@ -29,11 +29,17 @@ nbias 86
 aobias 87
 /end_advanced_VC_commands
 
+/header_info
+header 7
+/end_header_info
+
 /display
 rawImage 48 32768 char
-OpticFlowX 50 256 char
-OpticFlowY 52 256 char
-fps 54 1 short
+opticFlow 50 512 char
+fps 54 40 char
 cmd 56 2 char
-Maxes 58 160 char
+maxes 58 160 char
 /end_display
+
+
+
