@@ -521,7 +521,7 @@ void ArduEyeUI::PrintImage(uchar * data, int rows, int cols)
             rows : number of rows of vectors
             cols:  number of cols of vectors
             PM: PixelMap that vectors overlay onto
- ---------------------------------------------------------------*/
+ ----------------------------------------------------------------*/
 void ArduEyeUI::PrintVectors(char *dataR, char * dataC, int rows, int cols, QPixmap *PM)
 {
     int iIdx;
@@ -534,7 +534,7 @@ void ArduEyeUI::PrintVectors(char *dataR, char * dataC, int rows, int cols, QPix
     for (int i = 0; i < rows; i++)
     {
         iIdx = i * cols;
-        yPlace = (BoxWidth * (i+0.5f));
+        yPlace = (BoxHeight * (i+0.5f));
         for(int j = 0; j < cols; j++)
         {
             QPointF S(BoxWidth* (j+0.5f), yPlace);
