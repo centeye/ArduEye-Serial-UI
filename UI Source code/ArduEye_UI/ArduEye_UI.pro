@@ -25,7 +25,7 @@ RESOURCES += \
     ArduEye.qrc
 
 INCLUDEPATH  += ../qextserialport_lean
-QMAKE_LIBDIR += ../qextserialport-build-desktop/build
+QMAKE_LIBDIR += ../qextserialport-build-desktop-win/build
 
 
 
