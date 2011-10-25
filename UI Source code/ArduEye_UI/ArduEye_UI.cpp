@@ -452,11 +452,19 @@ void ArduEyeUI::paintManager()
     // print text to Data Dump /Cmd History Text Box
     for (int n = 0; n < NumDataSets; n++)
     {
+        // data format is a sequence of command, value pairs, (1 byte command, 1 byte value)
+        // command values match with configuration text file
         if((DS[n].DisplayType == DISPLAY_DUMP) && (DS[n].DataReceived))
         {
-            QString num;
-            QString cmd = CmdList[CmdIndex.indexOf(DS[n].DataArray)] ;
-            ui->textEdit->append("cmd" + cmd + ": "  + num.setNum(DS[n].DataArray[1]));
+            // print dividing line for visual clarity
+            ui->textEdit->append("-----------------------------------");
+            for(int i = 0; i < DS[n].length; i+=2)
+            {
+                QString num;
+                QString cmd = CmdList[CmdIndex.indexOf(DS[n].DataArray[i])];
+                ui->textEdit->append(cmd + ": "  + num.setNum(DS[n].DataArray[i+1]));
+            }
+            ui->textEdit->append("-----------------------------------");
             DS[n].DataReceived = false;
         }
     }
@@ -695,6 +703,9 @@ void ArduEyeUI::Parse(QString inText)
     char dat;
     int Idx;
 
+    // append ellipses to indicate UI is working on sending command, in case command takes a momment to complete
+    ui->textEdit->append("....");
+
     // fill data array:
     // start packet esc seqence
     Dat.append(ESC_CHAR);
@@ -710,14 +721,17 @@ void ArduEyeUI::Parse(QString inText)
         return;
     }
 
-    // set command
-    Idx = CmdList.indexOf(inList.at(1));
-    if(Idx >= 0)
-        Dat.append(CmdIndex[Idx]);
-    else
+    if(inList.size() > 1)
     {
-        ui->textEdit->append("invalid command: 2 (case sensitive)");
-        return;
+    // set command
+        Idx = CmdList.indexOf(inList.at(1));
+        if(Idx >= 0)
+            Dat.append(CmdIndex[Idx]);
+        else
+        {
+            ui->textEdit->append("invalid command: 2 (case sensitive)");
+            return;
+        }
     }
 
     // set value parameters

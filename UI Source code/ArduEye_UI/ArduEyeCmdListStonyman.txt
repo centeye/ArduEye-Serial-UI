@@ -4,6 +4,7 @@ sensor_name ArduEye
 writeCmd 32
 display 33
 stop 35
+readCmd 40
 serialStart 39
 /end_basic_commands
 
@@ -14,9 +15,6 @@ of_resolution 72
 of_smoothing 73
 ampGain 76
 highPass 77
-settlingTime 78
-lwta_thresh 79
-lwta_win 80
 /end_VC_commands
 
 /advanced_VC_commands
@@ -27,6 +25,9 @@ vsw 82
 hsw 83
 nbias 86
 aobias 87
+settlingTime 78
+lwta_thresh 79
+lwta_win 80
 /end_advanced_VC_commands
 
 /header_info
@@ -37,7 +38,7 @@ header 7
 rawImage 48 32768 char
 opticFlow 50 512 char
 fps 54 40 char
-cmd 56 2 char
+cmd 56 40 char
 maxes 58 160 char
 /end_display
 
