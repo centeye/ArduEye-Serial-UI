@@ -6,6 +6,7 @@ display 33
 stop 35
 readCmd 40
 serialStart 39
+sensorStart 41
 /end_basic_commands
 
 /VC_commands
